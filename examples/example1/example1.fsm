@@ -1,0 +1,29 @@
+#example1
+#This example has two labels and a few functions
+#There are no global variables in this example
+#
+# Note: Parameters are passed into the statemachine are specified with <PARAMS:[CONST:CONST1],[CONST:CONST2],[VAR:VARNAME1]>
+
+:EXEC
+STATE1
+STATE2
+:DONE
+
+STATE1:
+S1Func1 <ERR:ERRHANDLER>
+S1Func2 <ERR:ERRHANDLER> <S1Func4> <S1Func5>
+S1Func3 <ERR:ERRHANDLER>
+:RETURN #Return to next state in EXEC block
+
+#In this case, the function is called, and returns to the next state
+S1Func4 <ERR:ERRHANDLER>
+:CONTINUE
+
+#In this case, the function is called, and the state exits the calling label
+S1Func5 <ERR:ERRHANDLER>
+:DONE
+
+STATE2:
+S2Func1 <PARAMS:[CONST:1]>
+S2Func2 <PARAMS:[CONST: "HELLO is alright."]>
+:RETURN
