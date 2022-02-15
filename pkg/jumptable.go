@@ -1,15 +1,14 @@
 package txtfsm
 
-type FSMElements struct {
-	labels []Labels
-	funcs  []Funcs
-	vars   []Vars
-}
-
 type FSMState struct {
 	StateFunc    *Funcs
 	ErrHandler   *Funcs
 	ReturnStates []*Funcs
+}
+
+type JumpElement struct {
+	Current *Funcs
+	Next    *Funcs
 }
 
 type JumpTable struct {
@@ -19,5 +18,5 @@ type JumpTable struct {
 }
 
 type StateStack struct {
-	States []*FSMState
+	Element []interface{}
 }
