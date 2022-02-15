@@ -1,16 +1,22 @@
-#example1
-#This example has two labels and a few functions
-#There are no global variables in this example
+#testdata.fsm
 #
 # Note: Parameters are passed into the statemachine are specified with <PARAMS:[CONST1],[CONST2],[VAR:VARNAME1]>
 # State parameters are separated by Tabs not spaces!!
 #
-# Reserved labels are :EXEC, :DONE, :RETURN, :CONTINUE
+# Reserved labels are :EXEC, :DONE, :RETURN, :CONTINUE, :VARS
+
+:VARS
+TestInt INT
+TestFloat FLOAT
+TestString STRING
+:DONE #Indicate that we are done with the variable block
+
 
 :EXEC
 STATE1
 STATE2
-:DONE #This will loop back to the beginning
+STATE3
+:DONE #Indicate that we are done with the "main" block
 
 STATE1:
 S1Func1 <ERR:ERRHANDLER>
@@ -19,17 +25,35 @@ S1Func3 <ERR:ERRHANDLER>
 :RETURN #Return to next state in calling state
 
 #In this case, the function is called, and returns to the next state in the STATE1 label
+#This demonstrates an implicit label
 S1Func4 <ERR:ERRHANDLER>
-:CONTINUE # Without this, the state machine would continue to S1Func5 and exit STATE1 without ever calling S1Func3
+:CONTINUE # Without this, the state machine would sequentially execute until EOF and exit STATE1 without ever calling S1Func3
 
 #In this case, the function is called, and returns from STATE1. There is no label associated with S1Func5
 S1Func5 <ERR:ERRHANDLER>
-:RETURN
+:RETURN #After S1Func5 has executed, the state machine will return to the original caller
 
 STATE2:
 S2Func1 <PARAMS:[1]> <ERR:ERRHANDLER>
 S2Func2 <PARAMS:["HELLO is alright."]>
 :RETURN
+
+STATE3:
+STATE4
+S2Func1
+S2Func2
+:RETURN
+
+STATE4:
+S4Func1 <ERR:ERRHANDLER> S4Func2 S4Func3
+:CONTINUE
+
+S4Func2
+:CONTINUE
+
+S4Func3
+:CONTINUE
+
 
 ERRHANDLER:
 ERROR
