@@ -163,6 +163,28 @@ func (f *FSMParser) processVars(i int) (int, error) {
 	return i, nil
 }
 
+func (f *FSMParser) processExecLine(s string) {
+	// Check to see if we've got a function registered with this name. If it isn't, this must be a label
+	// Before doing this, we'll need to parse the line into it's individual bits
+	if len(s) == 0 {
+		return
+	}
+	if s[0] == '#' {
+		return
+	}
+	fmt.Printf("%s\n", s)
+}
+
+func (f *FSMParser) processExecBlock(i int) (int, error) {
+	for n, v := range f.FsmText[i:] {
+		if f.checkTerminus(v) {
+			return n + i, nil
+		}
+		f.processExecLine(v)
+	}
+	return i, nil
+}
+
 func (f *FSMParser) BuildFSMElements() (bool, error) {
 	// Iterate through state file, build variable list, label list, and function list
 	var SkipLine int
@@ -179,12 +201,15 @@ func (f *FSMParser) BuildFSMElements() (bool, error) {
 			continue
 		}
 		if strings.Contains(v, ":VARS") {
-			fmt.Printf("Found Vars tag!\n")
 			SkipLine, err = f.processVars(i + 1)
 			fmt.Printf("Variables are: %v\n", f.Pmap.FSMVars)
 			if err != nil {
 				return false, err
 			}
+		}
+		if strings.Contains(v, ":EXEC") {
+			SkipLine, err = f.processExecBlock(i + 1)
+			fmt.Printf("Current Pmap is %v", f.Pmap)
 		}
 	}
 	return true, nil
