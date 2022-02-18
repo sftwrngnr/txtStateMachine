@@ -1,22 +1,22 @@
 package txtfsm
 
-type FSMState struct {
-	StateFunc    *Funcs
-	ErrHandler   *Funcs
-	ReturnStates []*Funcs
-}
+const MaxStackSize = 20 //Prevent infinite recursion
 
 type JumpElement struct {
-	Current *Funcs
-	Next    *Funcs
+	Current interface{}
+	Next    interface{}
 }
 
 type JumpTable struct {
-	InitState *FSMState
-	CurState  *FSMState
-	LabelMap  map[*Labels]*FSMState
+	InitState     *JumpElement
+	StateSequence []*JumpElement
 }
 
 type StateStack struct {
-	Element []interface{}
+	Element []JumpElement
+}
+
+type TxtFSMRegistry struct {
+	
+
 }

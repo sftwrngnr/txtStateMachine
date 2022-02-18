@@ -1,41 +1,47 @@
 #testdata.fsm
 #
-# Note: Parameters are passed into the statemachine are specified with <PARAMS:[CONST1],[CONST2],[VAR:VARNAME1]>
-# State parameters are separated by Tabs not spaces!!
+# Note: Parameters are passed into the statemachine are specified with [TYPE:[VALUE],[VARNAME1]] TYPE is one of INT, FLOAT, or STRING
+# State parameters are separated by Tabs or spaces.
 #
 # Reserved labels are :EXEC, :DONE, :RETURN, :CONTINUE, :VARS
 
 :VARS
-TestInt INT
-TestFloat FLOAT
-TestString STRING
-:DONE #Indicate that we are done with the variable block
+TestInt INT 69
+TestFloat FLOAT 6.99
+TestString STRING "Hello world."
+#Indicate that we are done with the variable block
+:DONE
 
 
 :EXEC
 STATE1
 STATE2
 STATE3
-:DONE #Indicate that we are done with the "main" block
+#Indicate that we are done with the "main" block
+:DONE 
 
 STATE1:
 S1Func1 <ERR:ERRHANDLER>
-S1Func2 <ERR:ERRHANDLER>    <S1Func4>   <S1Func5> #If S1Func2 returns 0, S1Func4 is called, if it returns 1, S1Func5 is called otherwise ERRHANDLER is called.
+#If S1Func2 returns 0, S1Func4 is called, if it returns 1, S1Func5 is called otherwise ERRHANDLER is called.
+S1Func2 <ERR:ERRHANDLER> <S1Func4> <S1Func5> 
 S1Func3 <ERR:ERRHANDLER>
-:RETURN #Return to next state in calling state
+#Return to next state in calling state
+:RETURN
 
 #In this case, the function is called, and returns to the next state in the STATE1 label
 #This demonstrates an implicit label
 S1Func4 <ERR:ERRHANDLER>
-:CONTINUE # Without this, the state machine would sequentially execute until EOF and exit STATE1 without ever calling S1Func3
+# Without this, the state machine would sequentially execute until EOF and exit STATE1 without ever calling S1Func3
+:CONTINUE
 
 #In this case, the function is called, and returns from STATE1. There is no label associated with S1Func5
 S1Func5 <ERR:ERRHANDLER>
-:RETURN #After S1Func5 has executed, the state machine will return to the original caller
+#After S1Func5 has executed, the state machine will return to the original caller
+:RETURN
 
 STATE2:
-S2Func1 <PARAMS:[1]> <ERR:ERRHANDLER>
-S2Func2 <PARAMS:["HELLO is alright."]>
+S2Func1([INT:1]) <ERR:ERRHANDLER>
+S2Func2([STRING:"HELLO is alright."])
 :RETURN
 
 STATE3:
@@ -45,7 +51,7 @@ S2Func2
 :RETURN
 
 STATE4:
-S4Func1 <ERR:ERRHANDLER> S4Func2 S4Func3
+S4Func1 <ERR:ERRHANDLER> S4Func2(TestInt,[STRING:"TEST IT"]) S4Func3
 :CONTINUE
 
 S4Func2

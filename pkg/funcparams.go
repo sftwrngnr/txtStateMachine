@@ -9,4 +9,7 @@ const (
 
 type FuncParam struct {
 	ParamType FSMPtype
+	ParamData *Var //Constants are just specialized variables that are immutable when created
 }
+
+type FuncParams []*FuncParam

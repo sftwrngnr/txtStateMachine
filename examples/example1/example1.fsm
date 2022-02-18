@@ -2,7 +2,7 @@
 #This example has two labels and a few functions
 #There are no global variables in this example
 #
-# Note: Parameters are passed into the statemachine are specified with <PARAMS:[CONST1],[CONST2],[VAR:VARNAME1]>
+# Note: Parameters are passed into the state machine are specified with <PARAMS:[CONST1],[CONST2],[VAR:VARNAME1]>
 # State parameters are separated by Tabs not spaces!!
 #
 # Reserved labels are :EXEC, :DONE, :RETURN, :CONTINUE
@@ -27,10 +27,10 @@ S1Func5 <ERR:ERRHANDLER>
 :RETURN
 
 STATE2:
-S2Func1 <PARAMS:[1]> <ERR:ERRHANDLER>
-S2Func2 <PARAMS:["HELLO is alright."]>
+S2Func1 [INT:[1]] <ERR:ERRHANDLER>
+S2Func2 [STRING:["HELLO is alright."]]
 :RETURN
 
 ERRHANDLER:
 ERROR
-:RETURN
+:RETURN #Alternatively, this can be DONE or CONTINUE depending on desired behavior
