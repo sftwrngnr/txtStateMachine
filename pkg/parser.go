@@ -17,8 +17,8 @@ func getTerminusList() []string {
 }
 
 type FSMElements struct {
-	FSMLabels []FSMLabel
-	FSMFuncs  []Funcs
+	FSMLabels FSMLabelMap
+	FSMFuncs  FSMFuncList
 	FSMVars   []Var
 }
 
@@ -163,6 +163,37 @@ func (f *FSMParser) processVars(i int) (int, error) {
 	return i, nil
 }
 
+func (f *FSMParser) checkLabel(s string) bool {
+	for _, v := range f.Pmap.FSMLabels {
+		if v.Name == s {
+			return true
+		}
+		sl := len(s) - 1
+		if s[sl] == ':' {
+			if v.Name == s[0:sl] {
+				return true
+			}
+		}
+	}
+	// Is this an unknown label?
+	return false
+}
+
+func (f *FSMParser) checkFunc(s string) bool {
+	for _, v := range f.Pmap.FSMFuncs {
+		if v.Name == s {
+			return true
+		}
+	}
+	return false
+}
+
+func (f *FSMParser) addFunc(s []string) {
+	// Initially just add func into list
+	// TODO: Parse line
+	f.Pmap.FSMFuncs = append(f.Pmap.FSMFuncs, &FSMFunc{Name: s[0]})
+}
+
 func (f *FSMParser) processExecLine(s string) {
 	// Check to see if we've got a function registered with this name. If it isn't, this must be a label
 	// Before doing this, we'll need to parse the line into it's individual bits
@@ -172,10 +203,49 @@ func (f *FSMParser) processExecLine(s string) {
 	if s[0] == '#' {
 		return
 	}
-	fmt.Printf("%s\n", s)
+	tln := strings.Fields(s)
+
+	if len(tln[0]) == 0 {
+		return
+	}
+	if f.checkLabel(tln[0]) {
+		// This is a label
+		// Add label address to jump table
+		fmt.Printf("Adding label %s to jump table\n", tln[0])
+
+	} else {
+		// This is a function
+		// Add function to jump table
+		fmt.Printf("Adding function %s\n to jump table\n", tln[0])
+		if !f.checkFunc(tln[0]) {
+			f.addFunc(tln)
+		}
+	}
+}
+
+func (f *FSMParser) buildLabelsList(i int) {
+	// Exec block is first, and **MUST** occur after Vars (if any) if exec is elsewhere, the states above won't be processed.
+	// Yes, I can fix that... However, doing it this way, allows me to quickly comment out a chunk of the state machine without
+	// actually commenting it out. This is in fact by design (hence why current line number is passed in)
+	f.Pmap.FSMLabels = make(FSMLabelMap, 0)
+	for _, v := range f.FsmText[i:] {
+		l := strings.Trim(v, " \t\n")
+		ll := len(l)
+		if ll > 1 {
+			ll--
+			if l[ll] == ':' {
+				ln := l[0:ll]
+				if _, ok := f.Pmap.FSMLabels[ln]; !ok {
+					f.Pmap.FSMLabels[l] = &FSMLabel{Name: ln}
+				}
+			}
+		}
+
+	}
 }
 
 func (f *FSMParser) processExecBlock(i int) (int, error) {
+	f.buildLabelsList(i)
 	for n, v := range f.FsmText[i:] {
 		if f.checkTerminus(v) {
 			return n + i, nil
@@ -183,6 +253,36 @@ func (f *FSMParser) processExecBlock(i int) (int, error) {
 		f.processExecLine(v)
 	}
 	return i, nil
+}
+
+func (f *FSMParser) PrintPmap() {
+	printVars := func() {
+		VT := []string{"INT", "FLOAT", "STRING"}
+		fmt.Printf("\tVars\n")
+		for _, v := range f.Pmap.FSMVars {
+			fmt.Printf("\t\t%s\t%s\t%v\n", v.Name, VT[int(v.VType)], v.curval)
+		}
+		fmt.Printf("----------------------\n")
+	}
+	printLabels := func() {
+		fmt.Printf("\tLabels\n")
+		for k, v := range f.Pmap.FSMLabels {
+			fmt.Printf("\t\t%s\t%v\n", k, *v)
+		}
+		fmt.Printf("----------------------\n")
+	}
+	printFuncs := func() {
+		fmt.Printf("\tFunctions\n")
+		for _, v := range f.Pmap.FSMFuncs {
+			fmt.Printf("\t\t%v\n", *v)
+		}
+		fmt.Printf("----------------------\n")
+	}
+	fmt.Printf("Pmap:\n")
+	fmt.Printf("----------------------\n")
+	printVars()
+	printLabels()
+	printFuncs()
 }
 
 func (f *FSMParser) BuildFSMElements() (bool, error) {
@@ -196,7 +296,6 @@ func (f *FSMParser) BuildFSMElements() (bool, error) {
 		if v[0] == '#' {
 			continue
 		}
-		fmt.Printf("i %d, SkipLine %d\n", i, SkipLine)
 		if i < SkipLine {
 			continue
 		}
@@ -206,42 +305,36 @@ func (f *FSMParser) BuildFSMElements() (bool, error) {
 			if err != nil {
 				return false, err
 			}
+			continue
 		}
 		if strings.Contains(v, ":EXEC") {
 			SkipLine, err = f.processExecBlock(i + 1)
-			fmt.Printf("Current Pmap is %v", f.Pmap)
+			if err != nil {
+				return false, err
+			}
+			continue
 		}
+		f.processLine(i)
 	}
+	f.PrintPmap()
 	return true, nil
 }
 
 func (f *FSMParser) processLine(l int) {
+	inL := strings.Trim(f.FsmText[l], " \t\n")
+	if f.checkReserved(inL) {
+		return
+	}
+	if f.checkLabel(inL) {
+		return
+	}
+	f.processExecLine(inL)
 
 }
 
 func (f *FSMParser) Parse() (bool, error) {
-	if succ, err := f.BuildFSMElements(); (err == nil) && succ {
-		/*
-			if len(f.FsmText) > 0 {
-				newI := -1
-				for l, v := range f.FsmText {
-					if newI > l {
-						continue
-					}
-					if len(v) == 0 {
-						continue
-					}
-					if v[0] == '#' {
-						continue
-					}
-					//newL := f.trimComment(v)
-					//fmt.Printf("%d %s\n", l, newL)
-					f.processLine(l)
-				}
-			}
-		*/
-
-	} else {
+	if succ, err := f.BuildFSMElements(); (err == nil) && !succ {
+		// Build jump table
 		return succ, err
 	}
 	return true, nil

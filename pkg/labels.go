@@ -5,7 +5,10 @@ type ReturnAction struct {
 }
 
 type FSMLabel struct {
-	Name     string
-	Elements []*FSMElements
-	Terminus *ReturnAction
+	Name         string
+	Elements     []*FSMElements
+	ErrorHandler *FSMElements
+	Terminus     *ReturnAction
 }
+
+type FSMLabelMap map[string]*FSMLabel

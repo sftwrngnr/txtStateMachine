@@ -17,12 +17,13 @@ TestString STRING "Hello world."
 STATE1
 STATE2
 STATE3
+S1Func3 <ERR:ERRHANDLER>
 #Indicate that we are done with the "main" block
 :DONE 
 
 STATE1:
 S1Func1 <ERR:ERRHANDLER>
-#If S1Func2 returns 0, S1Func4 is called, if it returns 1, S1Func5 is called otherwise ERRHANDLER is called.
+#If S1Func2 returns 0, S1Func4 is called, if it returns 1, S1Func5 if an error occurs, ERRHANDLER is called.
 S1Func2 <ERR:ERRHANDLER> <S1Func4> <S1Func5> 
 S1Func3 <ERR:ERRHANDLER>
 #Return to next state in calling state
