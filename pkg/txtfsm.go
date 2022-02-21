@@ -23,7 +23,7 @@ func getInstance() *TxtFSM {
 	if sTextFSM == nil {
 		stfLock.Lock()
 		defer stfLock.Unlock()
-		sTextFSM = &TxtFSM{fMap: make(map[string]TxtFSMFunc, 0)}
+		sTextFSM = &TxtFSM{fMap: make(map[string]TxtFSMFunc)}
 	}
 	return sTextFSM
 }
@@ -59,4 +59,15 @@ func TxtFSMRegister(name string, f TxtFSMFunc) bool {
 		return false
 	}
 	return true
+}
+
+func (t *TxtFSM) clearMap() {
+	// This should only be called if we are testing.
+	addLock.Lock()
+	defer addLock.Unlock()
+	t.fMap = make(map[string]TxtFSMFunc)
+}
+
+func TxtFSMClearMap() {
+	getInstance().clearMap()
 }

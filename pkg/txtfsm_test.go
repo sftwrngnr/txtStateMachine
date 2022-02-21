@@ -33,26 +33,31 @@ func TestFSMRegisterSingleFunc(t *testing.T) {
 }
 
 func TestFSMRegisterDuplicateFunc(t *testing.T) {
+	TxtFSMClearMap()
 	ms := &myState{}
 	if !TxtFSMRegister("TestState1", ms) {
+		t.Logf("Already registered TestState1\n")
 		t.Fail()
-
 	}
 	ns := &myNextState{}
 	if TxtFSMRegister("TestState1", ns) {
+		t.Logf("Already registered TestState1\n")
 		t.Fail()
 	}
 
 }
 
 func TestFSMRegisterMultipleFunc(t *testing.T) {
+	TxtFSMClearMap()
 	ms := &myState{}
 	if !TxtFSMRegister("TestState1", ms) {
+		t.Logf("Already registered TestState1\n")
 		t.Fail()
 
 	}
 	ns := &myNextState{}
 	if !TxtFSMRegister("TestState2", ns) {
+		t.Logf("Already registered TestState2\n")
 		t.Fail()
 	}
 	if _, err := TestRun("TestState1", nil); err != nil {
