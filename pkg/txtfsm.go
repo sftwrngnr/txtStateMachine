@@ -1,51 +1,57 @@
 package txtfsm
 
 import (
-	"errors"
-	"flag"
 	"fmt"
 	"sync"
 )
 
 type TxtFSM struct {
-	fMap map[string]TxtFSMFunc
-}
-
-type TxtFSMFunc interface {
-	run(params []interface{}) (int, error)
+	fMap     map[string]FSMInterface
+	testMode bool
+	addLock  *sync.Mutex
 }
 
 // Singleton var
 var sTextFSM *TxtFSM
 var stfLock = &sync.Mutex{}
-var addLock = &sync.Mutex{}
 
 func getInstance() *TxtFSM {
 	if sTextFSM == nil {
 		stfLock.Lock()
 		defer stfLock.Unlock()
-		sTextFSM = &TxtFSM{fMap: make(map[string]TxtFSMFunc)}
+		sTextFSM = &TxtFSM{fMap: make(map[string]FSMInterface), addLock: &sync.Mutex{}}
 	}
 	return sTextFSM
 }
 
-func (t *TxtFSM) addFunc(name string, f TxtFSMFunc) bool {
+func (t *TxtFSM) addFunc(name string, f FSMInterface) bool {
 	// Protect the instance with a mutext while adding
-	addLock.Lock()
-	defer addLock.Unlock()
+	t.addLock.Lock()
+	if t.testMode {
+		fmt.Printf("Adding function %s", name)
+	}
+	defer t.addLock.Unlock()
 	if _, ok := t.fMap[name]; !ok {
 		t.fMap[name] = f
+		if t.testMode {
+			fmt.Printf(" successfully\n")
+		}
 		return true
+	}
+	if t.testMode {
+		fmt.Printf(" unsuccessfully\n")
 	}
 	return false
 }
 
 func (t *TxtFSM) testRun(fName string, params []interface{}) (int, error) {
 	if _, ok := t.fMap[fName]; !ok {
-		return 0, errors.New(fmt.Sprintf("invalid function [%s] called", fName))
+		return 0, fmt.Errorf("invalid function [%s] called", fName)
 
 	}
-	fmt.Printf("Running %s\n", fName)
+	if t.testMode {
+		fmt.Printf("Running %s\n", fName)
+	}
 	return t.fMap[fName].run(params)
 
 }
@@ -54,25 +60,31 @@ func TestRun(fname string, params []interface{}) (int, error) {
 	return getInstance().testRun(fname, params)
 }
 
-func TxtFSMRegister(name string, f TxtFSMFunc) bool {
-	if !getInstance().addFunc(name, f) {
-		fmt.Printf("Function %s already registered!!\n", name)
-		return false
-	}
-	return true
+func TxtFSMRegister(name string, f FSMInterface) bool {
+	return getInstance().addFunc(name, f)
 }
 
 func (t *TxtFSM) clearMap() {
 	// This should only be called if we are testing.
-	addLock.Lock()
-	defer addLock.Unlock()
-	t.fMap = make(map[string]TxtFSMFunc)
+	if !t.testMode {
+		return
+	}
+	fmt.Printf("clearing function map\n")
+	t.addLock.Lock()
+	defer t.addLock.Unlock()
+	t.fMap = make(map[string]FSMInterface)
 }
 
 func TxtFSMClearMap() {
-	if flag.Lookup("test.v") == nil {
-		fmt.Printf("Not testing. Ignoring this call\n")
-		return
-	}
 	getInstance().clearMap()
+}
+
+func (t *TxtFSM) setTestMode() {
+	t.addLock.Lock()
+	defer t.addLock.Unlock()
+	t.testMode = true
+}
+
+func SetTestMode() {
+	getInstance().setTestMode()
 }

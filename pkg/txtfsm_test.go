@@ -28,6 +28,8 @@ func (mns *myNextState) run(params []interface{}) (int, error) {
 }
 
 func TestFSMRegisterSingleFunc(t *testing.T) {
+	SetTestMode()
+	TxtFSMClearMap()
 	ms := &myState{}
 	if !TxtFSMRegister("TestState1", ms) {
 		t.Fail()
@@ -37,6 +39,7 @@ func TestFSMRegisterSingleFunc(t *testing.T) {
 }
 
 func TestFSMRegisterDuplicateFunc(t *testing.T) {
+	SetTestMode()
 	TxtFSMClearMap()
 	ms := &myState{}
 	if !TxtFSMRegister("TestState1", ms) {
@@ -45,13 +48,14 @@ func TestFSMRegisterDuplicateFunc(t *testing.T) {
 	}
 	ns := &myNextState{}
 	if TxtFSMRegister("TestState1", ns) {
-		t.Logf("Already registered TestState1\n")
+		t.Logf("Should have already registered TestState1\n")
 		t.Fail()
 	}
 
 }
 
 func TestFSMRegisterMultipleFunc(t *testing.T) {
+	SetTestMode()
 	TxtFSMClearMap()
 	ms := &myState{}
 	if !TxtFSMRegister("S1Func1", ms) {
