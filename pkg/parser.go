@@ -71,7 +71,7 @@ func (f *FSMParser) getVarIntVal(s string) (int, error) {
 	vIdx := strings.Index(s, "INT")
 	if vIdx > -1 {
 		vIdx += 3
-		cval := strings.Trim(s[vIdx:], " \t\n")
+		cval := strings.Trim(s[vIdx:], " \t\n\r")
 		if len(cval) == 0 {
 			return 0, nil
 		}
@@ -88,7 +88,7 @@ func (f *FSMParser) getVarFloatVal(s string) (float32, error) {
 	vIdx := strings.Index(s, "FLOAT")
 	if vIdx > -1 {
 		vIdx += 5
-		cval := strings.Trim(s[vIdx:], " \t\n")
+		cval := strings.Trim(s[vIdx:], " \t\n\r")
 		if len(cval) == 0 {
 			return float32(0), nil
 		}
@@ -105,7 +105,7 @@ func (f *FSMParser) getVarStringVal(s string) (string, error) {
 	vIdx := strings.Index(s, "STRING")
 	if vIdx > -1 {
 		vIdx += 6
-		cval := strings.Trim(s[vIdx:], " \t\n")
+		cval := strings.Trim(s[vIdx:], " \t\n\r")
 		return cval, nil
 	}
 	return "", nil
@@ -204,7 +204,10 @@ func (f *FSMParser) processExecLine(s string) {
 		return
 	}
 	tln := strings.Fields(s)
-
+	if len(tln) == 0 {
+		fmt.Printf("Empty fields %s\n", s)
+		return
+	}
 	if len(tln[0]) == 0 {
 		return
 	}
@@ -229,7 +232,7 @@ func (f *FSMParser) buildLabelsList(i int) {
 	// actually commenting it out. This is in fact by design (hence why current line number is passed in)
 	f.Pmap.FSMLabels = make(FSMLabelMap, 0)
 	for _, v := range f.FsmText[i:] {
-		l := strings.Trim(v, " \t\n")
+		l := strings.Trim(v, " \t\n\r")
 		ll := len(l)
 		if ll > 1 {
 			ll--
@@ -322,6 +325,9 @@ func (f *FSMParser) BuildFSMElements() (bool, error) {
 
 func (f *FSMParser) processLine(l int) {
 	inL := strings.Trim(f.FsmText[l], " \t\n")
+	if len(inL) == 0 {
+		return
+	}
 	if f.checkReserved(inL) {
 		return
 	}
