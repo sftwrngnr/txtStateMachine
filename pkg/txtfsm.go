@@ -2,6 +2,7 @@ package txtfsm
 
 import (
 	"errors"
+	"flag"
 	"fmt"
 	"sync"
 )
@@ -69,5 +70,9 @@ func (t *TxtFSM) clearMap() {
 }
 
 func TxtFSMClearMap() {
+	if flag.Lookup("test.v") == nil {
+		fmt.Printf("Not testing. Ignoring this call\n")
+		return
+	}
 	getInstance().clearMap()
 }
