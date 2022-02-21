@@ -42,7 +42,7 @@ func (t *TxtFSM) addFunc(name string, f TxtFSMFunc) bool {
 
 func (t *TxtFSM) testRun(fName string, params []interface{}) (int, error) {
 	if _, ok := t.fMap[fName]; !ok {
-		return 0, errors.New("invalid function called")
+		return 0, errors.New(fmt.Sprintf("invalid function [%s] called", fName))
 
 	}
 	fmt.Printf("Running %s\n", fName)

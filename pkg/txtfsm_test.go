@@ -84,3 +84,25 @@ func TestFSMRegisterMultipleFunc(t *testing.T) {
 	}
 
 }
+
+func TestInvalidFuncName(t *testing.T) {
+	TxtFSMClearMap()
+	ms := &myState{}
+	if !TxtFSMRegister("S1Func1", ms) {
+		t.Logf("Already registered S1Func1\n")
+		t.Fail()
+
+	}
+	ns := &myNextState{}
+	if !TxtFSMRegister("S1Func2", ns) {
+		t.Logf("Already registered S1Func2\n")
+		t.Fail()
+	}
+	if _, err := TestRun("S1Func3", nil); err == nil {
+		t.Logf("Should have thrown an error!\n")
+		t.Fail()
+	} else {
+		fmt.Printf("%s\n", err.Error())
+	}
+
+}
