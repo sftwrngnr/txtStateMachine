@@ -12,7 +12,7 @@ type TxtFSM struct {
 }
 
 type TxtFSMFunc interface {
-	run(params ...interface{}) (int, error)
+	run(params []interface{}) (int, error)
 }
 
 // Singleton var
@@ -40,7 +40,7 @@ func (t *TxtFSM) addFunc(name string, f TxtFSMFunc) bool {
 	return false
 }
 
-func (t *TxtFSM) testRun(fName string, params ...interface{}) (int, error) {
+func (t *TxtFSM) testRun(fName string, params []interface{}) (int, error) {
 	if _, ok := t.fMap[fName]; !ok {
 		return 0, errors.New("invalid function called")
 
@@ -50,7 +50,7 @@ func (t *TxtFSM) testRun(fName string, params ...interface{}) (int, error) {
 
 }
 
-func TestRun(fname string, params ...interface{}) (int, error) {
+func TestRun(fname string, params []interface{}) (int, error) {
 	return getInstance().testRun(fname, params)
 }
 
