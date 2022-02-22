@@ -19,7 +19,7 @@ func getTerminusList() []string {
 type FSMElements struct {
 	FSMLabels FSMLabelMap
 	FSMFuncs  FSMFuncList
-	FSMVars   []Var
+	FSMVars   []*Var
 }
 
 type FSMParser struct {
@@ -117,8 +117,8 @@ func (f *FSMParser) processVarLine(s string) {
 	ValidTypes := []string{"INT", "FLOAT", "STRING"}
 	for _, v := range ValidTypes {
 		if strings.Contains(s, v) {
+			tvar := NewVar(false)
 			// We know which one this is!
-			var tvar Var
 			tvar.Name = f.getVarName(v, s)
 			switch v {
 			case "INT":

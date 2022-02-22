@@ -1,5 +1,7 @@
 package txtfsm
 
+import "sync"
+
 type FSMVar int
 
 const (
@@ -12,6 +14,7 @@ type Var struct {
 	Name     string
 	VType    FSMVar
 	noUpdate bool
+	lock     *sync.Mutex
 	curval   interface{}
 }
 
@@ -31,6 +34,8 @@ func (v *Var) SetVal(nv interface{}) {
 	if v.noUpdate {
 		return
 	}
+	v.lock.Lock()
+	defer v.lock.Unlock()
 	switch v.VType {
 	case VInt:
 		v.curval = nv.(int)
@@ -39,4 +44,8 @@ func (v *Var) SetVal(nv interface{}) {
 	case VString:
 		v.curval = nv.(string)
 	}
+}
+
+func NewVar(nu bool) *Var {
+	return &Var{lock: &sync.Mutex{}, noUpdate: nu}
 }

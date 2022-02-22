@@ -1,15 +1,26 @@
 package txtfsm
 
-type FSMPtype int
+type FSMPType int
+type FSMDType int
 
 const (
-	FSMVariable FSMPtype = iota
+	FSMVariable FSMPType = iota
 	FSMConstant
 )
 
+const (
+	FSMInt FSMDType = iota
+	FSMFloat
+	FSMString
+)
+
 type FuncParam struct {
-	ParamType FSMPtype
-	ParamData *Var //Constants are just specialized variables that are immutable when created
+	ParamType     FSMPType
+	ParamDataType FSMDType
 }
 
 type FuncParams []*FuncParam
+
+func (fp FuncParams) Params(ftp FSMPType, fsmt FSMDType) FuncParams {
+	return append(fp, &FuncParam{ParamType: ftp, ParamDataType: fsmt})
+}

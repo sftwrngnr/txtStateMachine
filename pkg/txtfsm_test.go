@@ -31,7 +31,8 @@ func TestFSMRegisterSingleFunc(t *testing.T) {
 	SetTestMode()
 	TxtFSMClearMap()
 	ms := &myState{}
-	if !TxtFSMRegister("TestState1", ms) {
+	fp := make(FuncParams, 0)
+	if !TxtFSMRegister("TestState1", ms, fp) {
 		t.Fail()
 
 	}
@@ -42,12 +43,13 @@ func TestFSMRegisterDuplicateFunc(t *testing.T) {
 	SetTestMode()
 	TxtFSMClearMap()
 	ms := &myState{}
-	if !TxtFSMRegister("TestState1", ms) {
+	fp := make(FuncParams, 0)
+	if !TxtFSMRegister("TestState1", ms, fp) {
 		t.Logf("Already registered TestState1\n")
 		t.Fail()
 	}
 	ns := &myNextState{}
-	if TxtFSMRegister("TestState1", ns) {
+	if TxtFSMRegister("TestState1", ns, fp) {
 		t.Logf("Should have already registered TestState1\n")
 		t.Fail()
 	}
@@ -58,13 +60,17 @@ func TestFSMRegisterMultipleFunc(t *testing.T) {
 	SetTestMode()
 	TxtFSMClearMap()
 	ms := &myState{}
-	if !TxtFSMRegister("S1Func1", ms) {
+	fp := make(FuncParams, 0)
+	if !TxtFSMRegister("S1Func1", ms, fp) {
 		t.Logf("Already registered S1Func1\n")
 		t.Fail()
 
 	}
 	ns := &myNextState{}
-	if !TxtFSMRegister("S1Func2", ns) {
+	np := make(FuncParams, 0)
+	np = np.Params(FSMConstant, FSMInt).Params(FSMConstant, FSMString)
+	fmt.Printf("%v %v\n", *np[0], *np[1])
+	if !TxtFSMRegister("S1Func2", ns, np) {
 		t.Logf("Already registered S1Func2\n")
 		t.Fail()
 	}
@@ -92,13 +98,18 @@ func TestFSMRegisterMultipleFunc(t *testing.T) {
 func TestInvalidFuncName(t *testing.T) {
 	TxtFSMClearMap()
 	ms := &myState{}
-	if !TxtFSMRegister("S1Func1", ms) {
+	fp := make(FuncParams, 0)
+
+	if !TxtFSMRegister("S1Func1", ms, fp) {
 		t.Logf("Already registered S1Func1\n")
 		t.Fail()
 
 	}
 	ns := &myNextState{}
-	if !TxtFSMRegister("S1Func2", ns) {
+	np := make(FuncParams, 0)
+	np = np.Params(FSMConstant, FSMInt).Params(FSMConstant, FSMString)
+
+	if !TxtFSMRegister("S1Func2", ns, np) {
 		t.Logf("Already registered S1Func2\n")
 		t.Fail()
 	}
