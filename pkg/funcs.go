@@ -1,9 +1,9 @@
 package txtfsm
 
 type FSMFunc struct {
-	Name      string
-	Func      *FSMInterface
-	Params    FuncParams
+	Name string
+	Func *FSMInterface
+	//Params    FuncParams
 	Signature FuncSignature
 }
 
