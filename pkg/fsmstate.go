@@ -1,8 +1,12 @@
 package txtfsm
 
+type FSMJump struct {
+	Label *FSMLabel
+	Func  *FSMFunc
+}
+
 type FSMState struct {
-	Label        *FSMLabel
-	StateFunc    *FSMFunc
-	ErrHandler   *FSMFunc
-	ReturnStates []interface{} //Can be label or statefunc
+	State        *FSMJump
+	ErrHandler   *FSMJump
+	ReturnStates []*FSMJump //Can be label or statefunc
 }
