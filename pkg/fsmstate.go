@@ -7,6 +7,8 @@ type FSMJump struct {
 
 type FSMState struct {
 	State        *FSMJump
+	Params       *FuncParams
 	ErrHandler   *FSMJump
 	ReturnStates []*FSMJump //Can be label or statefunc
+	Next         *FSMJump
 }

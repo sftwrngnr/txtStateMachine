@@ -3,18 +3,15 @@ package txtfsm
 const MaxStackSize = 20 //Prevent infinite recursion
 
 type JumpElement struct {
-	Current FSMInterface
-	Next    FSMInterface
+	Current *FSMJump
+	Next    *FSMJump
 }
 
 type JumpTable struct {
-	InitState     *JumpElement
+	StateLabel    string
 	StateSequence []*JumpElement
 }
 
 type StateStack struct {
-	Element []JumpElement
-}
-
-type TxtFSMRegistry struct {
+	Element []*JumpElement
 }
