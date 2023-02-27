@@ -191,7 +191,9 @@ func (f *FSMParser) checkFunc(s string) bool {
 func (f *FSMParser) addFunc(s []string) {
 	// Initially just add func into list
 	// TODO: Parse line
+	fmt.Printf("addFUnc %v\n", s)
 	f.Pmap.FSMFuncs = append(f.Pmap.FSMFuncs, &FSMFunc{Name: s[0]})
+
 }
 
 func (f *FSMParser) processExecLine(s string) {
@@ -332,6 +334,7 @@ func (f *FSMParser) processLine(l int) {
 		return
 	}
 	if f.checkLabel(inL) {
+		fmt.Printf("Label: %s\n", inL)
 		return
 	}
 	f.processExecLine(inL)
