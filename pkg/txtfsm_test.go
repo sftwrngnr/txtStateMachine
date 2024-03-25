@@ -16,6 +16,14 @@ func (ms *myState) run(params []interface{}) (int, error) {
 	return 0, nil
 }
 
+func (ms *myState) pre_run(params []interface{}) (bool, error) {
+	return true, nil
+}
+
+func (ms *myState) post_run(params []interface{}) (bool, error) {
+	return true, nil
+}
+
 type myNextState struct {
 }
 
@@ -25,6 +33,14 @@ func (mns *myNextState) run(params []interface{}) (int, error) {
 		return 0, errors.New("incorrect parameter passed")
 	}
 	return 1, nil
+}
+
+func (ms *myNextState) pre_run(params []interface{}) (bool, error) {
+	return true, nil
+}
+
+func (ms *myNextState) post_run(params []interface{}) (bool, error) {
+	return true, nil
 }
 
 func TestFSMRegisterSingleFunc(t *testing.T) {
