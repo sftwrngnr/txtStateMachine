@@ -1,4 +1,4 @@
-module sftwrngnr/txtStateMachine
+module github.com/sftwrngnr/txtStateMachine
 
 go 1.17
 
